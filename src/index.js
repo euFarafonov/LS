@@ -15,12 +15,10 @@ function forEach(array, fn) {
  Напишите аналог встроенного метода map для работы с массивами
  */
 function map(array, fn) {
-    var newArr = [],
-        newItem;
+    var newArr = [];
     
     for (var i = 0; i < array.length; i++) {
-        newItem = fn(array[i], i, array);
-        newArr.push(newItem);
+        newArr.push(fn(array[i], i, array));
     }
     
     return newArr;
@@ -31,11 +29,9 @@ function map(array, fn) {
  Напишите аналог встроенного метода reduce для работы с массивами
  */
 function reduce(array, fn, initial) {
-    var i;
+    var i = 0;
     
-    if (initial) {
-        i = 0;
-    } else {
+    if (!initial) {
         i = 1;
         initial = array[0];
     }
@@ -62,7 +58,7 @@ function deleteProperty(obj, prop) {
  Функция должна проверить существует ли укзаанное свойство в указанном объекте
  */
 function hasProperty(obj, prop) {
-    return (prop in obj) ? true : false;
+    return prop in obj;
 }
 
 /*
@@ -81,7 +77,9 @@ function upperProps(obj) {
     var names = [];
     
     for (var prop in obj) {
-        names.push(prop.toUpperCase());
+        if (obj.hasOwnProperty(prop)) {
+            names.push(prop.toUpperCase());
+        }
     }
     
     return names;
@@ -91,23 +89,23 @@ function upperProps(obj) {
  Задача 8 *:
  Напишите аналог встроенного метода slice для работы с массивами
  */
-function slice(array, from, to) {
+function slice(array, from = 0, to = array.length) {
     var newArr = [],
         len = array.length;
         
-    if (from < 0) {
+    if (from < 0 && from >= - len) {
         from = len + from;
+    }
+    
+    if (from < -len) {
+        from = 0;
     }
     
     if (to < 0) {
         to = len + to;
     }
     
-    if (!from || from > len || !isFinite(from)) {
-        from = 0;
-    }
-    
-    if (!to || to > len || !isFinite(to)) {
+    if (to > len) {
         to = len;
     }
     
