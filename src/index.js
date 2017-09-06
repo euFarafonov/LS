@@ -150,34 +150,44 @@ function deleteTextNodesRecursive(where) {
  *   texts: 3
  * }
  */
-function collectDOMStat(root, result) {
-    result = result || { tags: {}, classes: {}, texts: 0 };
+function collectDOMStat(root) {
+    var result = { tags: {}, classes: {}, texts: 0 };
     
-    if (root.nodeType === 3) {
-        result.texts++;
-    } else {
-        var newClasses = root.className.split(' ');
-        
-        if (root.tagName in result.tags) {
-            result.tags[root.tagName]++;
-        } else {
-            result.tags[root.tagName] = 1;
-        }
-        
-        for (let i = 0; i < newClasses.length; i++) {
-            if (newClasses[i] in result.classes) {
-                result.classes[newClasses[i]]++;
-            } else {
-                result.classes[newClasses[i]] = 1;
+    function checkNodes(root) {
+        if (root.childNodes) {
+            for (let i = 0; i < root.childNodes.length; i++) {
+                let item = root.childNodes[i];
+                
+                if (item.nodeType === 3) {
+                    result.texts += 1;
+                } 
+                
+                if (item.nodeType === 1) {
+                    if (item.tagName in result.tags) {
+                        result.tags[item.tagName] += 1;
+                    } else {
+                        result.tags[item.tagName] = 1;
+                    }
+                    
+                    var itemClasses = item.className.split(' ');
+                    
+                    for (let i = 0; i < itemClasses.length; i++) {
+                        if (itemClasses[i] in result.classes) {
+                            result.classes[itemClasses[i]] += 1;
+                        } else {
+                            if (itemClasses[i] !== '') {
+                                result.classes[itemClasses[i]] = 1;
+                            }
+                        }
+                    }
+                    
+                    checkNodes(item);
+                }
             }
         }
     }
     
-    if (root.children) {
-        for (let i = 0; i < root.children.length; i++) {
-            collectDOMStat(root.children[i], result);
-        }
-    }
+    checkNodes(root);
     
     return result;
 }
