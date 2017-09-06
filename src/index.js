@@ -227,19 +227,28 @@ function observeChildNodes(where, fn) {
     var observer = new MutationObserver(function(mutations) {
         var arg = { type: null, nodes: [] };
         
-        if (mutations[0].addedNodes !== undefined) {
-            arg.type = 'insert';
-        }
-        
-        if (mutations[0].removeNodes !== undefined) {
-            arg.type = 'remove';
-        }
-        
-        mutations.forEach(function(mutation) {
-            arg.nodes.push(mutation.addedNodes[0].nodeName.toLowerCase());
+        mutations.forEach(function(mutation) { // mutation - "объект" со свойствами отдельного изменения
+            if (mutation.addedNodes !== undefined) {// если есть addedNodes => добавляем
+                arg.type = 'insert';
+                
+                arg.nodes.push(mutation.addedNodes[0].nodeName.toLowerCase());
+                //в массив nodes объекта arg добавляется каждое изменение в виде 'div', 'li', 'a'
+                
+                fn(arg);
+            }
+            
+            if (mutation.removeNodes !== undefined) {// если есть removeNodes => удаляем
+                arg.type = 'remove';
+                
+                arg.nodes.push(mutation.removeNodes[0].nodeName.toLowerCase());
+                
+                fn(arg);
+            }
+            
+            
         });
         
-        fn(arg);
+        
     });
     
     observer.observe(where, {
