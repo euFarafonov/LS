@@ -224,6 +224,28 @@ function collectDOMStat(root) {
  * }
  */
 function observeChildNodes(where, fn) {
+    var observer = new MutationObserver(function(mutations) {
+        var arg = { type: null, nodes: [] };
+        
+        if (mutations[0].addedNodes !== undefined) {
+            arg.type = 'insert';
+        }
+        
+        if (mutations[0].removeNodes !== undefined) {
+            arg.type = 'remove';
+        }
+        
+        mutations.forEach(function(mutation) {
+            arg.nodes.push(mutation.addedNodes[0].nodeName.toLowerCase());
+        });
+        
+        fn(arg);
+    });
+    
+    observer.observe(where, {
+        childList: true,
+        subtree: true
+    });
 }
 
 export {
