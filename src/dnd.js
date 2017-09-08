@@ -14,7 +14,6 @@
  * homeworkContainer.appendChild(...);
  */
 let homeworkContainer = document.querySelector('#homework-container');
-
 /**
  * Функция должна создавать и возвращать новый div с классом draggable-div и случайными размерами/цветом/позицией
  * Функция должна только создавать элемент и задвать ему случайные размер/позицию/цвет
@@ -37,7 +36,7 @@ function createDiv() {
         divColorB = getRandomInt(0, 255);
     
     div.classList.add('draggable-div');
-    div.style = `width: ${divWidth}; height: ${divHeight}; left: ${divLeft}; top: ${divTop}; background: rgb(${divColorR}, ${divColorG}, ${divColorB});`;
+    div.style = `width: ${divWidth}; height: ${divHeight}; left: ${divLeft}; top: ${divTop}; background: rgb(${divColorR}, ${divColorG}, ${divColorB}); position: fixed;`;
     
     return div;
 }
@@ -48,6 +47,22 @@ function createDiv() {
  * @param {Element} target
  */
 function addListeners(target) {
+    target.addEventListener('mousedown', function(event){
+        
+        document.addEventListener('mousemove', mMove);
+        
+        function mMove(event){
+            target.style.left = event.pageX - target.offsetWidth / 2 + 'px';
+            target.style.top = event.pageY - target.offsetHeight / 2 + 'px';
+        }
+        
+        target.addEventListener('mouseup', mUp);
+        
+        function mUp(event){
+            document.removeEventListener('mousemove', mMove);
+            target.removeEventListener('mouseup', mUp);
+        }
+    });
 }
 
 let addDivButton = homeworkContainer.querySelector('#addDiv');
