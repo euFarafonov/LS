@@ -23,10 +23,21 @@ let homeworkContainer = document.querySelector('#homework-container');
  * @return {Element}
  */
 function createDiv() {
-    var div = document.createElement('div');
+    function getRandomInt(min, max){
+        return Math.floor(Math.random() * (max - min + 1)) + min;
+    }
+    
+    var div = document.createElement('div'),
+        divWidth = getRandomInt(1, 1000) + 'px',
+        divHeight = getRandomInt(1, 1000) + 'px',
+        divLeft = getRandomInt(0, 1000) + 'px',
+        divTop = getRandomInt(0, 1000) + 'px',
+        divColorR = getRandomInt(0, 255),
+        divColorG = getRandomInt(0, 255),
+        divColorB = getRandomInt(0, 255);
     
     div.classList.add('draggable-div');
-    div.style = 'width: 200px; height: 200px; background: red; left: 0; top: 0';
+    div.style = `width: ${divWidth}; height: ${divHeight}; left: ${divLeft}; top: ${divTop}; background: rgb(${divColorR}, ${divColorG}, ${divColorB});`;
     
     return div;
 }
