@@ -14,6 +14,7 @@
  * homeworkContainer.appendChild(...);
  */
 let homeworkContainer = document.querySelector('#homework-container');
+
 /**
  * Функция должна создавать и возвращать новый div с классом draggable-div и случайными размерами/цветом/позицией
  * Функция должна только создавать элемент и задвать ему случайные размер/позицию/цвет
@@ -22,7 +23,7 @@ let homeworkContainer = document.querySelector('#homework-container');
  * @return {Element}
  */
 function createDiv() {
-    function getRandomInt(min, max){
+    function getRandomInt(min, max) {
         return Math.floor(Math.random() * (max - min + 1)) + min;
     }
     
@@ -47,20 +48,32 @@ function createDiv() {
  * @param {Element} target
  */
 function addListeners(target) {
-    target.addEventListener('mousedown', function(event){
+    target.addEventListener('mousedown', function(event) {
+        var shiftX = event.pageX - getCoords(target).left;
+        var shiftY = event.pageY - getCoords(target).top;
         
         document.addEventListener('mousemove', mMove);
         
-        function mMove(event){
-            target.style.left = event.pageX - target.offsetWidth / 2 + 'px';
-            target.style.top = event.pageY - target.offsetHeight / 2 + 'px';
+        function mMove(event) {
+            target.style.left = event.pageX - shiftX + 'px';
+            target.style.top = event.pageY - shiftY + 'px';
         }
         
         target.addEventListener('mouseup', mUp);
         
-        function mUp(event){
+        function mUp() {
             document.removeEventListener('mousemove', mMove);
             target.removeEventListener('mouseup', mUp);
+        }
+        
+        function getCoords(target) {
+            var box = target.getBoundingClientRect();
+
+            return {
+                top: box.top + pageYOffset,
+                left: box.left + pageXOffset
+            };
+        
         }
     });
 }
