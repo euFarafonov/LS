@@ -36,6 +36,30 @@ let homeworkContainer = document.querySelector('#homework-container');
  * @return {Promise<Array<{name: string}>>}
  */
 function loadTowns() {
+    var p = new Promise(function(resolve, reject){
+        var xhr = new XMLHttpRequest();
+        
+        xhr.open('GET', 'https://raw.githubusercontent.com/smelukov/citiesTest/master/cities.json');
+        xhr.send();
+        xhr.responseType = 'json';
+        
+        xhr.addEventListener('load', function(){
+            var arr = xhr.response;
+            
+            arr.sort(sortArr);
+            resolve(arr);
+        });
+    }).then(function(arr){
+        return arr;
+    });
+    
+    function sortArr(a, b) {
+        if (a['name'] > b['name']) return 1; 
+        if (a['name'] < b['name']) return -1; 
+        return 0;
+    }   
+    
+    return p;
 }
 
 /**
@@ -52,6 +76,8 @@ function loadTowns() {
  * @return {boolean}
  */
 function isMatching(full, chunk) {
+    return (full.toLowerCase().indexOf(chunk.toLowerCase()) !== -1);
+    
 }
 
 let loadingBlock = homeworkContainer.querySelector('#loading-block');
