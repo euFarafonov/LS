@@ -1,78 +1,56 @@
-/* ДЗ 1 - Функции */
+/* ДЗ 6.1 - Асинхронность и работа с сетью */
 
-/*
- Задание 1:
-
- Функция должна принимать один аргумент и возвращать его
+/**
+ * Функция должна создавать Promise, который должен быть resolved через seconds секунду после создания
+ *
+ * @param {number} seconds - количество секунд, через которое Promise должен быть resolved
+ * @return {Promise}
  */
-function returnFirstArgument(arg) {
-    return arg;
-}
-
-/*
- Задание 2:
-
- Функция должна принимать два аргумента и возвращать сумму переданных значений
- Значение по умолчанию второго аргумента должно быть 100
- */
-function defaultParameterValue(a, b = 100) {
-    return a + b;
-}
-
-/*
- Задание 3:
-
- Функция должна возвращать все переданные в нее аргументы в виде массива
- Количество переданных аргументов заранее неизвестно
- */
-function returnArgumentsArray() {
-    var arr = [];
-    for(var i = 0; i < arguments.length; i++){
-        arr[i] = arguments[i];
-    }
-    return arr;
-}
-
-/*
- Задание 4:
-
- Функция должна принимать другую функцию и возвращать результат вызова переданной функции
- */
-function returnFnResult(fn) {
-    return fn();
-}
-
-/*
- Задание 5:
-
- Функция должна принимать число (значение по умолчанию - 0) и возвращать функцию (F)
- При вызове F, переданное число должно быть увеличено на единицу и возвращено из F
- */
-function returnCounter(number = 0) {
-    function F (){
-        number++;
-        return number;
-    }
+function delayPromise(seconds) {
+    var p = new Promise(function(resolve, reject){
+        setTimeout(function(){
+            resolve();
+        }, seconds*1000);
+    });
     
-    return F;
+    return p;
 }
 
-/*
- Задание 6 *:
-
- Функция должна принимать другую функцию (F) и некоторое количество дополнительных аргументов
- Функция должна привязать переданные аргументы к функции F и вернуть получившуюся функцию
+/**
+ * Функция должна вернуть Promise, который должен быть разрешен массивом городов, загруженным из
+ * https://raw.githubusercontent.com/smelukov/citiesTest/master/cities.json
+ * Элементы полученного массива должны быть отсортированы по имени города
+ *
+ * @return {Promise<Array<{name: String}>>}
  */
-
-function bindFunction(fn, ...arg) {
-    return fn.bind(null, ...arg);
+function loadAndSortTowns() {
+    var p = new Promise(function(resolve, reject){
+        var xhr = new XMLHttpRequest();
+        
+        xhr.open('GET', 'https://raw.githubusercontent.com/smelukov/citiesTest/master/cities.json');
+        xhr.send();
+        xhr.responseType = 'json';
+        
+        xhr.addEventListener('load', function(){
+            var arr = xhr.response;
+            
+            arr.sort(sortArr);
+            resolve(arr);
+        });
+    }).then(function(arr){
+        return arr;
+    });
+    
+    function sortArr(a, b) {
+        if (a['name'] > b['name']) return 1; 
+        if (a['name'] < b['name']) return -1; 
+        return 0;
+    }   
+    
+    return p;
 }
 
 export {
-    returnFirstArgument,
-    defaultParameterValue,
-    returnArgumentsArray,
-    returnFnResult,
-    returnCounter,
-    bindFunction
-}
+    delayPromise,
+    loadAndSortTowns
+};
