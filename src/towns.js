@@ -28,6 +28,7 @@
  * homeworkContainer.appendChild(...);
  */
 let homeworkContainer = document.querySelector('#homework-container');
+let towns = [];
 
 /**
  * Функция должна загружать список городов из https://raw.githubusercontent.com/smelukov/citiesTest/master/cities.json
@@ -49,8 +50,19 @@ function loadTowns() {
             arr.sort(sortArr);
             resolve(arr);
         });
-    }).then(function(arr){
+    }).then(function(arr) {
         return arr;
+        arr.forEach(function(item) {
+            var p = document.createElement('p');
+            
+            p.textContent = item.name;
+            filterResult.appendChild(p);
+            filterBlock.style = 'display: block';
+            loadingBlock.style = 'display: none';
+            
+            towns.push(item.name);
+        });
+        
     });
     
     function sortArr(a, b) {
@@ -86,7 +98,19 @@ let filterInput = homeworkContainer.querySelector('#filter-input');
 let filterResult = homeworkContainer.querySelector('#filter-result');
 let townsPromise;
 
-filterInput.addEventListener('keyup', function() {
+filterInput.addEventListener('keyup', function(event) {
+    var sortTowns = [];
+    var text = this.value;
+    
+    filterResult.innerHTML = '';
+    towns.forEach(function(town){
+        if (isMatching(town, text)) {
+            var p = document.createElement('p');
+            
+            p.textContent = town;
+            filterResult.appendChild(p);
+        }
+    });
 });
 
 export {
