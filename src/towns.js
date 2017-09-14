@@ -45,24 +45,43 @@ function loadTowns() {
         xhr.responseType = 'json';
         
         xhr.addEventListener('load', function(){
-            var arr = xhr.response;
-            
-            arr.sort(sortArr);
-            resolve(arr);
+            if (xhr.status === 200) {
+                var arr = xhr.response;
+                
+                arr.sort(sortArr);
+                resolve(arr);
+            } else {
+                reject();
+            }
         });
-    }).then(function(arr) {
-        return arr;
+    })
+    .then(function(arr) {
         arr.forEach(function(item) {
-            var p = document.createElement('p');
-            
-            p.textContent = item.name;
-            filterResult.appendChild(p);
-            filterBlock.style = 'display: block';
-            loadingBlock.style = 'display: none';
-            
             towns.push(item.name);
         });
+        loadingBlock.style = 'display: none';
+        filterBlock.style = 'display: block';
         
+        return arr;
+    })
+    .catch(function(){
+        var div = document.createElement('div');
+        var p = document.createElement('p');
+        var input = document.createElement('input');
+        
+        div.setAttribute('id', 'blockError');
+        p.textContent = 'Не удалось загрузить города';
+        input.setAttribute('type', 'button');
+        input.value = 'Повторить';
+        
+        div.appendChild(p);
+        div.appendChild(input);
+        homeworkContainer.appendChild(div);
+        
+        input.addEventListener('click', function() {
+            homeworkContainer.removeChild(div);
+            loadTowns();
+        });
     });
     
     function sortArr(a, b) {
@@ -103,14 +122,17 @@ filterInput.addEventListener('keyup', function(event) {
     var text = this.value;
     
     filterResult.innerHTML = '';
-    towns.forEach(function(town){
-        if (isMatching(town, text)) {
-            var p = document.createElement('p');
-            
-            p.textContent = town;
-            filterResult.appendChild(p);
-        }
-    });
+    
+    if (text !== '') {
+        towns.forEach(function(town){
+            if (isMatching(town, text)) {
+                var p = document.createElement('p');
+                
+                p.textContent = town;
+                filterResult.appendChild(p);
+            }
+        });
+    }
 });
 
 export {
