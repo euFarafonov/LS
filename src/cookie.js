@@ -1,37 +1,3 @@
-/**
- * ДЗ 7.2 - Создать редактор cookie с возможностью фильтрации
- *
- * На странице должна быть таблица со списком имеющихся cookie:
- * - имя
- * - значение
- * - удалить (при нажатии на кнопку, выбранная cookie удаляется из браузера и таблицы)
- *
- * На странице должна быть форма для добавления новой cookie:
- * - имя
- * - значение
- * - добавить (при нажатии на кнопку, в браузер и таблицу добавляется новая cookie с указанным именем и значением)
- *
- * Если добавляется cookie с именем уже существующией cookie, то ее значение в браузере и таблице должно быть обновлено
- *
- * На странице должно быть текстовое поле для фильтрации cookie
- * В таблице должны быть только те cookie, в имени или значении которых есть введенное значение
- * Если в поле фильтра пусто, то должны выводиться все доступные cookie
- * Если дабавляемая cookie не соответсвуте фильтру, то она должна быть добавлена только в браузер, но не в таблицу
- * Если добавляется cookie, с именем уже существующией cookie и ее новое значение не соответствует фильтру,
- * то ее значение должно быть обновлено в браузере, а из таблицы cookie должна быть удалена
- *
- * Для более подробной информации можно изучить код тестов
- *
- * Запрещено использовать сторонние библиотеки. Разрешено пользоваться только тем, что встроено в браузер
- */
-
-/**
- * homeworkContainer - это контейнер для всех ваших домашних заданий
- * Если вы создаете новые html-элементы и добавляете их на страницу, то дабавляйте их только в этот контейнер
- *
- * @example
- * homeworkContainer.appendChild(...);
- */
 let homeworkContainer = document.querySelector('#homework-container');
 let filterNameInput = homeworkContainer.querySelector('#filter-name-input');
 let addNameInput = homeworkContainer.querySelector('#add-name-input');
@@ -39,8 +5,101 @@ let addValueInput = homeworkContainer.querySelector('#add-value-input');
 let addButton = homeworkContainer.querySelector('#add-button');
 let listTable = homeworkContainer.querySelector('#list-table tbody');
 
+showCookie();
+
+function showCookie() {
+    listTable.innerHTML = '';
+    let cookieObj = getCookie();
+    
+    if (cookieObj) {
+        for (let prop in cookieObj) {
+            if (filterCookie(prop)) {
+                addCookie(prop, cookieObj[prop]);
+            }
+        }
+    }
+}
+
+function getCookie() {
+    if (document.cookie !== '') {
+        let cookieObj = {};
+        let cookieArr = document.cookie.split('; ');
+        
+        for (let i = 0; i < cookieArr.length; i++) {
+            let item = cookieArr[i].split('=');
+            cookieObj[item[0]] = item[1];
+        }
+        
+        return cookieObj;
+    }
+}
+
+function filterCookie(cookieName) {
+    let filter = filterNameInput.value;
+    
+    if (filter === '') {
+        return true;
+    }
+    
+    return (cookieName.indexOf(filter) > -1);
+}
+
+function addCookie(cookieName, cookieValue) {
+    let tr = document.createElement('tr');
+    let button = document.createElement('button');
+    button.setAttribute('type', 'button');
+    button.textContent = 'Удалить';
+    
+    let tdName = document.createElement('td');
+    tdName.textContent = cookieName;
+    
+    let tdVal = document.createElement('td');
+    tdVal.textContent = cookieValue;
+    
+    let tdDel = document.createElement('td');
+    tdDel.appendChild(button);
+    
+    tr.appendChild(tdName);
+    tr.appendChild(tdVal);
+    tr.appendChild(tdDel);
+    
+    listTable.appendChild(tr);
+    
+    button.addEventListener('click', function(){
+        delCookie(cookieName, button);
+    });
+}
+
+function delCookie(cookieName, button) {
+    let date = new Date(0);
+        
+    document.cookie = cookieName + "=; expires=-" + date.toUTCString();
+    let parentTr = button.parentElement.parentElement;
+    
+    if (parentTr.nodeName === 'TR') {
+        listTable.removeChild(parentTr);
+    }
+}
+
 filterNameInput.addEventListener('keyup', function() {
+    showCookie();
 });
 
 addButton.addEventListener('click', () => {
+    let cookieName = addNameInput.value;
+    let cookieValue = addValueInput.value;
+    let date = new Date(new Date().getTime() + 60 *60 * 1000);
+    
+    document.cookie = cookieName + "=" + cookieValue + "; expires=" + date.toUTCString();
+    
+    if (filterCookie(cookieName)) {
+        let allTr = listTable.querySelectorAll('tr td:first-of-type');
+        for (let i = 0; i < allTr.length; i++) {
+            if (allTr[i].innerText === cookieName) {
+                allTr[i].nextElementSibling.textContent = cookieValue;
+                return false;
+            }
+        }
+        addCookie(cookieName, cookieValue);
+    }
 });
