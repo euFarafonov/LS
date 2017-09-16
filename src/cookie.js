@@ -13,7 +13,7 @@ function showCookie() {
     
     if (cookieObj) {
         for (let prop in cookieObj) {
-            if (filterCookie(prop)) {
+            if (filterCookie(prop, cookieObj[prop])) {
                 addCookie(prop, cookieObj[prop]);
             }
         }
@@ -34,14 +34,14 @@ function getCookie() {
     }
 }
 
-function filterCookie(cookieName) {
+function filterCookie(cookieName, cookieValue) {
     let filter = filterNameInput.value;
     
     if (filter === '') {
         return true;
     }
     
-    return (cookieName.indexOf(filter) > -1);
+    return (cookieName.indexOf(filter) > -1 || cookieValue.indexOf(filter) > -1);
 }
 
 function addCookie(cookieName, cookieValue) {
@@ -92,14 +92,5 @@ addButton.addEventListener('click', () => {
     
     document.cookie = cookieName + "=" + cookieValue + "; expires=" + date.toUTCString();
     
-    if (filterCookie(cookieName)) {
-        let allTr = listTable.querySelectorAll('tr td:first-of-type');
-        for (let i = 0; i < allTr.length; i++) {
-            if (allTr[i].innerText === cookieName) {
-                allTr[i].nextElementSibling.textContent = cookieValue;
-                return false;
-            }
-        }
-        addCookie(cookieName, cookieValue);
-    }
+    showCookie();
 });
