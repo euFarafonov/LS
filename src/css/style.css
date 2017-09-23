@@ -1,0 +1,198 @@
+* {
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font: 500 12px 'Fira Sans', sans-serif;
+}
+
+.clearfix::after {
+    content: "";
+    display: block;
+    clear: both;
+}
+
+.btn {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    margin: auto;
+    background-image: url(../img/sprite.png);
+    cursor: pointer;
+    font-size: 0;
+}
+
+/* PARANJA */
+.paranja {
+    position: fixed;
+    z-index: 1000;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.2);
+}
+
+
+/* FILTER */
+    .filter {
+        width: 620px;
+        margin: 100px auto 0;
+    }
+    
+        /* title */
+        .filter_title {
+            background-color: #ff8663;
+            font-size: 16px;
+            line-height: 45px;
+            color: #fff;
+            padding: 0 30px 0 15px;
+            border-radius: 8px 8px 0 0;
+            position: relative;
+        }
+        
+            .filter_close {
+                width: 12px;
+                height: 12px;
+                background-position: 0px 0px;
+                right: 15px;
+            }
+        
+        /* container */
+        .filter_container {
+            font-size: 0;
+            background-color: #fff;
+        }
+        
+            .filter_block {
+                display: inline-block;
+                vertical-align: top;
+                width: 50%;
+                font-size: 12px;
+                box-sizing: border-box;
+            }
+            
+            .filter_block:first-of-type {
+                border-right: 1px solid #f0f0f0;
+            }
+            
+                .filter_form {
+                    background-color: #f0f0f0;
+                    padding: 10px 10px 10px 15px;
+                }
+                
+                    .filter_form label {
+                        display: block;
+                        position: relative;
+                    }
+                
+                        .filter_form input {
+                            display: block;
+                            color: #9f9f9f;
+                            line-height: 26px;
+                            padding: 0 27px;
+                            border-radius: 26px;
+                            border: none;
+                            font-family: inherit;
+                            width: 100%;
+                            box-sizing: border-box;
+                            cursor: pointer;
+                        }
+                        
+                        .filter_form input:focus {
+                            outline: none;
+                            box-shadow: 0 0 10px 0 rgba(0, 0, 0, 0.5);
+                        }
+                        
+                        .filter_block_left label::before {
+                            content: "";
+                            position: absolute;
+                            width: 13px;
+                            height: 13px;
+                            top: 0;
+                            bottom: 0;
+                            margin: auto;
+                            left: 7px;
+                            background: url(../img/sprite.png) -50px 0px;
+                            cursor: pointer;
+                        }
+            
+            .filter_friend {
+                padding: 0 20px;
+                box-sizing: border-box;
+                color: #4f4f4f;
+            }
+            
+                .filter_friend_title {
+                    padding: 15px 0 5px;
+                }
+                
+                .filter_friend_wrap {
+                    height: 325px;
+                    overflow: auto;
+                    list-style-type: none;
+                }
+                
+                    .filter_friend_item {
+                        position: relative;
+                        padding: 7px 5px;
+                        box-sizing: border-box;
+                        border-top: 1px solid #f0f0f0;
+                        background-color: #fff;
+                    }
+                    
+                    .filter_friend_item_move {
+                        position: absolute;
+                        z-index: 1000;
+                        
+                    }
+                    
+                    .filter_friend_item:hover {
+                        background-color: #f0f0f0;
+                    }
+                    
+                        .filter_friend_img {
+                            float: left;
+                            width: 45px;
+                            height: 45px;
+                            border-radius: 50%;
+                        }
+                        
+                        .filter_friend_name {
+                            margin-left: 55px;
+                            line-height: 45px;
+                        }
+                        
+                        .filter_block:first-of-type .action {
+                            right: 8px;
+                            width: 16px;
+                            height: 16px;
+                            background-position: -32px 0px;
+                        }
+                        
+                        .filter_block:last-of-type .action {
+                            right: 8px;
+                            width: 12px;
+                            height: 12px;
+                            background-position: -16px 0px;
+                        }
+                    
+        /* footer */
+        .filter_footer {
+            background-color: #f0f0f0;
+            border-radius: 0 0 8px 8px;
+            text-align: right;
+            padding: 7px;
+        }
+        
+            .filter_save {
+                font-weight: 300;
+                line-height: 30px;
+                color: #fff;
+                padding:  0 15px;
+                background-color: #ff8663;
+                display: inline-block;
+                border-radius: 8px;
+                cursor: pointer;
+            }

@@ -1,0 +1,54 @@
+<!DOCTYPE HTML>
+<html lang="ru">
+<head>
+	<meta charset="utf-8">
+	<title>Другофильтр Facebook</title>
+    <link href="https://fonts.googleapis.com/css?family=Fira+Sans:300,500" rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css">
+    <script src="https://vk.com/js/api/openapi.js"  type="text/javascript"></script>
+</head>
+
+<body>
+
+<div class="paranja">
+    <div class="filter">
+        <div class="filter_title">
+            Выберите друзей
+            <div class="btn filter_close">Закрыть окно</div>
+        </div>
+        
+        <div id="filter_container" class="filter_container">
+            <div class="filter_block filter_block_left">
+                <form class="filter_form" method="get" action="">
+                    <label>
+                        <input id="js_filter_left" type="text" placeholder="Начните вводить имя друга">
+                    </label>
+                </form>
+                <div class="filter_friend">
+                    <div class="filter_friend_title">Ваши друзья</div>
+                    <ul id="js_friend_list_left" class="filter_friend_wrap js_drop"></ul>
+                </div>
+            </div>
+            
+            <div class="filter_block filter_block_right">
+                <form class="filter_form" method="get" action="">
+                    <label>
+                        <input id="js_filter_right" type="text" placeholder="Начните вводить имя друга">
+                    </label>
+                </form>
+                <div class="filter_friend">
+                    <div class="filter_friend_title">Друзья в списке</div>
+                    <ul id="js_friend_list_right" class="filter_friend_wrap js_drop"></ul>
+                </div>
+            </div>
+        </div>
+        
+        <div class="filter_footer">
+            <div class="filter_save">Сохранить</div>
+        </div>
+    </div>
+</div>
+
+<script src="js/js.js"></script>
+</body>
+</html>
