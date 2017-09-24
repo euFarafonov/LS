@@ -11,7 +11,6 @@ filterLeft.value = '';
 filterRight.value = '';
 
 if (localStorage.left && localStorage.right) {
-    console.log(2);
     allFriends = JSON.parse(localStorage.left);
     selectFriends = JSON.parse(localStorage.right);
     
@@ -26,7 +25,6 @@ if (localStorage.left && localStorage.right) {
         showFriend(friend, friendListRight);
     });
 } else {
-    console.log(1);
     const promise = new Promise(function(resolve, reject){
         VK.init( {apiId: 6194358} );
         
