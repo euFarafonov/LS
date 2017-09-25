@@ -139,6 +139,7 @@ body {
                         box-sizing: border-box;
                         border-top: 1px solid #f0f0f0;
                         background-color: #fff;
+                        list-style-type: none;
                     }
                     
                     .filter_friend_item:hover {
@@ -157,20 +158,20 @@ body {
                             line-height: 45px;
                             position: relative;
                         }
-                        
-                        .filter_block:first-of-type .action {
-                            right: 0;
-                            width: 16px;
-                            height: 16px;
-                            background-position: -32px 0px;
-                        }
-                        
-                        .filter_block:last-of-type .action {
-                            right: 0;
-                            width: 12px;
-                            height: 12px;
-                            background-position: -16px 0px;
-                        }
+                            
+                            .filter_block:first-of-type .action {
+                                right: 0;
+                                width: 16px;
+                                height: 16px;
+                                background-position: -32px 0px;
+                            }
+                            
+                            .filter_block:last-of-type .action {
+                                right: 0;
+                                width: 12px;
+                                height: 12px;
+                                background-position: -16px 0px;
+                            }
                     
         /* footer */
         .filter_footer {
