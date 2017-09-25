@@ -1,0 +1,115 @@
+<!DOCTYPE HTML>
+<html lang="ru">
+<head>
+	<meta charset="utf-8">
+	<title>Другофильтр Facebook</title>
+    <link href="https://fonts.googleapis.com/css?family=Fira+Sans:300,500" rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css">
+</head>
+
+<body>
+<script>
+  window.fbAsyncInit = function() {
+    FB.init({
+      appId      : '1228801013893172',
+      xfbml      : false,
+      version    : 'v2.10'
+    });
+    //FB.AppEvents.logPageView();
+    FB.login(function(response) {
+      // handle the response
+    }, {scope: 'email,user_likes'});
+  };
+
+  (function(d, s, id){
+     var js, fjs = d.getElementsByTagName(s)[0];
+     if (d.getElementById(id)) {return;}
+     js = d.createElement(s); js.id = id;
+     js.src = "//connect.facebook.net/en_US/sdk.js";
+     fjs.parentNode.insertBefore(js, fjs);
+   }(document, 'script', 'facebook-jssdk'));
+</script>
+
+
+<div class="paranja">
+    <div class="filter">
+        <div class="filter_title">
+            Выберите друзей
+            <div class="btn filter_close">Закрыть окно</div>
+        </div>
+        
+        <div class="filter_container">
+            <div class="filter_block filter_block_left">
+                <form class="filter_form" method="get" action="">
+                    <label>
+                        <input type="text" placeholder="Начните вводить имя друга">
+                    </label>
+                </form>
+                <div class="filter_friend">
+                    <div class="filter_friend_title">Ваши друзья</div>
+                    <div class="filter_friend_wrap">
+                        <div class="filter_friend_item clearfix">
+                            <img class="filter_friend_img" src="" alt="">
+                            <div class="filter_friend_name">Ivan Ivanov</div>
+                            <div class="btn action"></div>
+                        </div>
+                        <div class="filter_friend_item clearfix">
+                            <img class="filter_friend_img" src="" alt="">
+                            <div class="filter_friend_name">Ivan Ivanov</div>
+                            <div class="btn action"></div>
+                        </div>
+                        <div class="filter_friend_item clearfix">
+                            <img class="filter_friend_img" src="" alt="">
+                            <div class="filter_friend_name">Ivan Ivanov</div>
+                            <div class="btn action"></div>
+                        </div>
+                        <div class="filter_friend_item clearfix">
+                            <img class="filter_friend_img" src="" alt="">
+                            <div class="filter_friend_name">Ivan Ivanov</div>
+                            <div class="btn action"></div>
+                        </div>
+                        <div class="filter_friend_item clearfix">
+                            <img class="filter_friend_img" src="" alt="">
+                            <div class="filter_friend_name">Ivan Ivanov</div>
+                            <div class="btn action"></div>
+                        </div>
+                        <div class="filter_friend_item clearfix">
+                            <img class="filter_friend_img" src="" alt="">
+                            <div class="filter_friend_name">Ivan Ivanov</div>
+                            <div class="btn action"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="filter_block filter_block_right">
+                <form class="filter_form" method="get" action="">
+                    <input type="text" placeholder="Название">
+                </form>
+                <div class="filter_friend">
+                    <div class="filter_friend_title">Друзья в списке</div>
+                    <div class="filter_friend_wrap">
+                        <div class="filter_friend_item clearfix">
+                            <img class="filter_friend_img" src="" alt="">
+                            <div class="filter_friend_name">Ivan Ivanov</div>
+                            <div class="btn action"></div>
+                        </div>
+                        <div class="filter_friend_item clearfix">
+                            <img class="filter_friend_img" src="" alt="">
+                            <div class="filter_friend_name">Ivan Ivanov</div>
+                            <div class="btn action"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="filter_footer">
+            <div class="filter_save">Сохранить</div>
+        </div>
+    </div>
+</div>
+
+<script src="js/js.js"></script>
+</body>
+</html>

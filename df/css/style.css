@@ -131,42 +131,38 @@ body {
                 .filter_friend_wrap {
                     height: 325px;
                     overflow: auto;
-                    list-style-type: none;
                 }
                 
                     .filter_friend_item {
+                        position: relative;
                         padding: 7px 5px;
                         box-sizing: border-box;
                         border-top: 1px solid #f0f0f0;
-                        background-color: #fff;
-                    }
-                    
-                    .filter_friend_item:hover {
-                        background-color: #f0f0f0;
                     }
                     
                         .filter_friend_img {
                             float: left;
                             width: 45px;
                             height: 45px;
+                            
                             border-radius: 50%;
+                            border: 1px solid red;
                         }
                         
                         .filter_friend_name {
                             margin-left: 55px;
                             line-height: 45px;
-                            position: relative;
                         }
                         
                         .filter_block:first-of-type .action {
-                            right: 0;
+                            right: 8px;
                             width: 16px;
                             height: 16px;
                             background-position: -32px 0px;
                         }
                         
                         .filter_block:last-of-type .action {
-                            right: 0;
+                            right: 8px;
                             width: 12px;
                             height: 12px;
                             background-position: -16px 0px;

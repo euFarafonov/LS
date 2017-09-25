@@ -10,7 +10,7 @@ var filterSave = document.querySelector('.filter_save');
 filterLeft.value = '';
 filterRight.value = '';
 
-if (localStorage.left && localStorage.right) {
+if (localStorage.left && localStorage.right) {// Если есть LS - извлечение данных
     allFriends = JSON.parse(localStorage.left);
     selectFriends = JSON.parse(localStorage.right);
     
@@ -24,7 +24,7 @@ if (localStorage.left && localStorage.right) {
     selectFriends.forEach(function(friend){
         showFriend(friend, friendListRight);
     });
-} else {
+} else {// Первоначальное заполнение списка друзей
     const promise = new Promise(function(resolve, reject){
         VK.init( {apiId: 6194358} );
         
@@ -55,7 +55,6 @@ if (localStorage.left && localStorage.right) {
         });
 }
 
-/* Первоначальное заполнение списка друзей */
 function api(method, params) {
     return new Promise((resolve, reject) => {
         VK.api(method, params, data => {
@@ -68,6 +67,7 @@ function api(method, params) {
     });
 }
 
+/* Формирование и вывод списка друзей */
 function showFriend(friend, parentBlock) {
     let friendLi = document.createElement('li');
     friendLi.classList.add('filter_friend_item');
@@ -87,14 +87,14 @@ function showFriend(friend, parentBlock) {
     friendBtn.classList.add('btn');
     friendBtn.classList.add('action');
     
+    friendName.appendChild(friendBtn);
     friendLi.appendChild(friendImg);
     friendLi.appendChild(friendName);
-    friendLi.appendChild(friendBtn);
     
     parentBlock.appendChild(friendLi);
 }
 
-/* Фильтрация списков */
+/* Клик по инпуту - фильтрация */
 document.addEventListener('keyup', function(event){
     let target = event.target;
     
@@ -115,6 +115,7 @@ document.addEventListener('keyup', function(event){
     });
 });
 
+/* Фильтрация */
 function filterFriend(name, filter) {
     return (name.toLowerCase().indexOf(filter.toLowerCase()) !== -1);
 }
@@ -130,29 +131,13 @@ filterContainer.addEventListener('click', function(event){
     var target = event.target;
     
     if (target.classList.contains('action')) {
-        var moveEl = target.parentElement;
-        var moveElId = moveEl.dataset.id;
+        var moveEl = target.parentElement.parentElement;
         var side = moveEl.parentElement.id.split('_')[3];
-        var arrId = null;
-        
-        function changeElement(arr1, arr2) {
-            for (var i = 0; i < arr1.length; i++) {
-                if (arr1[i].id == moveElId){
-                    arrId = i;
-                    break;
-                }
-            }
-            
-            if (arrId !== null) {
-                var delEl = arr1.splice(arrId, 1);
-                arr2.push(delEl[0]);
-            }
-        }
         
         if (side === 'left') {
-            changeElement(allFriends, selectFriends);
+            changeElement(allFriends, selectFriends, moveEl);
         } else {
-            changeElement(selectFriends, allFriends);
+            changeElement(selectFriends, allFriends, moveEl);
         }
         
         friendListLeft.innerHTML = '';
@@ -168,9 +153,27 @@ filterContainer.addEventListener('click', function(event){
     }
 });
 
+function changeElement(arr1, arr2, moveEl) {
+    var moveElId = moveEl.dataset.id;
+    var arrId = null;
+    
+    for (var i = 0; i < arr1.length; i++) {
+        if (arr1[i].id == moveElId){
+            arrId = i;
+            break;
+        }
+    }
+    
+    if (arrId !== null) {
+        var delEl = arr1.splice(arrId, 1);
+        arr2.push(delEl[0]);
+    }
+}
+
 /* Перемещение друзей DnD */
 var dragObject = {};
 
+/* Подготовка переноса */
 document.addEventListener('mousedown', function(event){
     if (event.which !== 1) return  false;
     
@@ -183,7 +186,10 @@ document.addEventListener('mousedown', function(event){
     dragObject.downY = event.pageY;
 });
 
+/* Процесс переноса */
 document.addEventListener('mousemove', function(event){
+    event.preventDefault();
+    
     if (!dragObject.elem) return false;
     
     if (!dragObject.avatar) {
@@ -246,12 +252,15 @@ function getCoords(target) {
 
 function startDrag(event) {
     var avatar = dragObject.avatar;
+    var avatarWidth = avatar.clientWidth + 'px';
     
+    avatar.style.width = avatarWidth;
     document.body.appendChild(avatar);
-    avatar.style.zIndex = 1000;
     avatar.style.position = 'absolute';
+    avatar.style.zIndex = 1000;
 }
 
+/* Окончание переноса */
 document.addEventListener('mouseup', function(event){
     if (dragObject.avatar) {
         finishDrag(event);
@@ -264,13 +273,25 @@ function finishDrag(e) {
     var dropElem = findDroppable(e);
     
     if (dropElem) {
-        //dropElem.appendChild(dragObject.avatar);
-        //dragObject.avatar.style.zIndex = '';
-        //dragObject.avatar.style.position = '';
-        //console.log(dragObject.avatar);
-        console.log('OK');
+        var avatar = dragObject.avatar;
+        
+        dropElem.appendChild(avatar);
+        avatar.style.width = '';
+        avatar.style.zIndex = '';
+        avatar.style.position = '';
+        avatar.style.left = '';
+        avatar.style.top = '';
+        
+        var side = dropElem.id.split('_')[3];
+        
+        if (side === 'right') {
+            changeElement(allFriends, selectFriends, avatar);
+        } else {
+            changeElement(selectFriends, allFriends, avatar);
+        }
     } else {
-        console.log('ERROR');
+        dragObject.avatar.rollback();
+        dragObject = {};
     }
 }
 
