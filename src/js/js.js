@@ -6,6 +6,7 @@ var filterRight = document.getElementById('js_filter_right');
 var friendListLeft = document.getElementById('js_friend_list_left');
 var friendListRight = document.getElementById('js_friend_list_right');
 var filterSave = document.querySelector('.filter_save');
+var highlight = null;
 
 filterLeft.value = '';
 filterRight.value = '';
@@ -17,10 +18,12 @@ if (localStorage.left && localStorage.right) {// Если есть LS - извл
     friendListLeft.innerHTML = '';
     friendListRight.innerHTML = '';
     
+    allFriends.sort(sortArr);
     allFriends.forEach(function(friend){
         showFriend(friend, friendListLeft);
     });
     
+    selectFriends.sort(sortArr);
     selectFriends.forEach(function(friend){
         showFriend(friend, friendListRight);
     });
@@ -46,6 +49,7 @@ if (localStorage.left && localStorage.right) {// Если есть LS - извл
             
             friendListLeft.innerHTML = '';
             
+            allFriends.sort(sortArr);
             allFriends.forEach(function(friend){
                 showFriend(friend, friendListLeft);
             });
@@ -108,6 +112,7 @@ document.addEventListener('keyup', function(event){
     
     parentEl.innerHTML = '';
     
+    arr.sort(sortArr);
     arr.forEach(function(friend){
         if ( filterFriend(friend.first_name, filterText) || filterFriend(friend.last_name, filterText) ) {
             showFriend(friend, parentEl);
@@ -140,15 +145,22 @@ filterContainer.addEventListener('click', function(event){
             changeElement(selectFriends, allFriends, moveEl);
         }
         
+        allFriends.sort(sortArr);
+        selectFriends.sort(sortArr);
+        
         friendListLeft.innerHTML = '';
         friendListRight.innerHTML = '';
         
         allFriends.forEach(function(friend){
-            showFriend(friend, friendListLeft);
+            if ( filterFriend(friend.first_name, filterLeft.value) || filterFriend(friend.last_name, filterLeft.value) ) {
+                showFriend(friend, friendListLeft);
+            }
         });
         
         selectFriends.forEach(function(friend){
-            showFriend(friend, friendListRight);
+            if ( filterFriend(friend.first_name, filterRight.value) || filterFriend(friend.last_name, filterRight.value) ) {
+                showFriend(friend, friendListRight);
+            }
         });
     }
 });
@@ -182,6 +194,7 @@ document.addEventListener('mousedown', function(event){
     if (!elem) return false;
     
     dragObject.elem = elem;
+    dragObject.parent = elem.parentElement;
     dragObject.downX = event.pageX;
     dragObject.downY = event.pageY;
 });
@@ -215,6 +228,21 @@ document.addEventListener('mousemove', function(event){
     
     dragObject.avatar.style.left = event.pageX - dragObject.shiftX + 'px';
     dragObject.avatar.style.top = event.pageY - dragObject.shiftY + 'px';
+    
+    var dropElem = findDroppable(event);
+    
+    if (dropElem) {
+        var highlightArr = filterContainer.querySelectorAll('.highlight');
+        for (let i = 0; i < highlightArr.length; i++) {
+            highlightArr[i].classList.remove('highlight');
+        }
+        dropElem.classList.add('highlight');
+        highlight = dropElem;
+    } else {
+        highlight = null;
+    }
+    
+    //console.log(dropElem);
     
     return false;
 });
@@ -272,7 +300,7 @@ document.addEventListener('mouseup', function(event){
 function finishDrag(e) {
     var dropElem = findDroppable(e);
     
-    if (dropElem) {
+    if (dropElem && dropElem !== dragObject.parent) {
         var avatar = dragObject.avatar;
         
         dropElem.appendChild(avatar);
@@ -289,10 +317,31 @@ function finishDrag(e) {
         } else {
             changeElement(selectFriends, allFriends, avatar);
         }
+        
+        allFriends.sort(sortArr);
+        selectFriends.sort(sortArr);
+        
+        friendListLeft.innerHTML = '';
+        friendListRight.innerHTML = '';
+        
+        allFriends.forEach(function(friend){
+            if ( filterFriend(friend.first_name, filterLeft.value) || filterFriend(friend.last_name, filterLeft.value) ) {
+                showFriend(friend, friendListLeft);
+            }
+        });
+        
+        selectFriends.forEach(function(friend){
+            if ( filterFriend(friend.first_name, filterRight.value) || filterFriend(friend.last_name, filterRight.value) ) {
+                showFriend(friend, friendListRight);
+            }
+        });
     } else {
         dragObject.avatar.rollback();
         dragObject = {};
     }
+    
+    highlight = null;
+    dropElem.classList.remove('highlight');
 }
 
 function findDroppable(event) {
@@ -307,4 +356,10 @@ function findDroppable(event) {
     }
     
     return elem.closest('.js_drop');
+}
+
+function sortArr(a, b) {
+        if (a['first_name'] > b['first_name']) return 1; 
+        if (a['first_name'] < b['first_name']) return -1; 
+        return 0;
 }

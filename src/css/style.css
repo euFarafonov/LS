@@ -23,6 +23,11 @@ body {
     font-size: 0;
 }
 
+.highlight {
+    /*outline: 2px solid blue;*/
+    box-shadow: 0 0 5px 0 blue;
+}
+
 /* PARANJA */
 .paranja {
     position: fixed;
