@@ -3,104 +3,37 @@
 <head>
     <meta name="viewport" content="initial-scale=1.0">
     <meta charset="utf-8">
-    <title>Simple Map</title>
-    <style>
-        /* Always set the map height explicitly to define the size of the div
-        * element that contains the map. */
-        #map {
-            height: 100%;
-        }
-        /* Optional: Makes the sample page fill the window. */
-        html, body {
-            height: 100%;
-            margin: 0;
-            padding: 0;
-        }
-    </style>
+    <title>Мой город</title>
+    <link href="https://fonts.googleapis.com/css?family=Fira+Sans:300,400,500" rel="stylesheet">
+    <link href="css/style.css" rel="stylesheet">
 </head>
 <body>
     <div id="map"></div>
-<script>
-    var map;
     
-    function initMap() {
-        var place = {lat: 46.96739732, lng: 31.98102951};
-        //var labels = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
-        
-        // создание карты
-        map = new google.maps.Map(document.getElementById('map'), {
-            center: place,
-            zoom: 15
-        });
-        
-        var geocoder = new google.maps.Geocoder;
-        var infowindow = new google.maps.InfoWindow;
-        
-        // маркер в центре
-        /*
-        var marker = new google.maps.Marker({
-            position: place,
-            map: map
-        });
-        */
-        // отслеживание клика по карте
-        map.addListener('click', function(event){
-            var latlng = event.latLng;
-            //console.log(event.latLng);
-            
-            geocodeLatLng(geocoder, map, infowindow, latlng);
-            /*
-            var marker = new google.maps.Marker({
-                position: event.latLng,
-                map: map
-            });
-            
-            // открытие попапа
-            infowindow.open(map, marker);
-            */
-        });
-        
-        function geocodeLatLng(geocoder, map, infowindow, latlng) {
-            //var input = document.getElementById('latlng').value;
-            //var latlngStr = input.split(',', 2);
-            //var latlng = {lat: parseFloat(latlngStr[0]), lng: parseFloat(latlngStr[1])};
-            
-            geocoder.geocode({'location': latlng}, function(results, status) {
-                if (status === 'OK') {
-                    if (results[0]) {
-                        //console.log(results[0]);
-                        console.log(results[0].formatted_address);
-                        //map.setZoom(11);
-                        
-                        var marker = new google.maps.Marker({
-                            position: latlng,
-                            map: map
-                        });
-                        
-                        infowindow.setContent(results[0].formatted_address);
-                        infowindow.open(map, marker);
-                    } else {
-                        console.log('No results found');
-                    }
-                } else {
-                    console.log('Geocoder failed due to: ' + status);
-                }
-            });
-        }
-        
-        // создание попапа
-        /*
-        infowindow = new google.maps.InfoWindow({
-            content: '<p class="content">Мой текст</p>'
-        });
-        
-        marker.addListener('click', function(event){
-            infowindow.open(map, marker);
-        });
-        */
-    }
-</script>
-    <script src="https://developers.google.com/maps/documentation/javascript/examples/markerclusterer/markerclusterer.js"></script>
-    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDSY1988PxAcLsMYwEShQVxto4H18kkoV4&callback=initMap" async defer></script>
+    <div class="popup">
+        <div class="popup_title"></div>
+        <ul class="popup_list">
+            <li><span>Человек 1 </span>Длинный отзыв человека номер один</li>
+            <li><span>Человек 2 </span>Длинный отзыв человека номер два</li>
+            <li><span>Человек 3 </span>Длинный отзыв человека номер три</li>
+        </ul>
+        <form class="popup_form" action="" method="post">
+            <div class="popup_form_title">Ваш отзыв</div>
+            <input type="text" name="name" placeholder="Ваше имя">
+            <input type="text" name="place" placeholder="Укажите место">
+            <textarea name="text" placeholder="Поделитесь впечатлениями"></textarea>
+            <button class="popup_form_btn" type="button">Добавить</button>
+        </form>
+    </div>
+    
+    <div class="paranja">
+        <div class="error">
+            <div class="error_title">Ошибка!</div>
+            <div class="error_text">Все поля обязательны для заполнения!</div>
+        </div>
+    </div>
+<script src="https://developers.google.com/maps/documentation/javascript/examples/markerclusterer/markerclusterer.js"></script>
+<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDSY1988PxAcLsMYwEShQVxto4H18kkoV4&callback=initMap" async defer></script>
+<script src="js/js.js"></script>
 </body>
 </html>
