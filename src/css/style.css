@@ -8,6 +8,7 @@
 html,
 body {
     height: 100%;
+    overflow: hidden;
 }
 
 #map {
@@ -17,8 +18,25 @@ body {
 /* POPUP */
 .popup {
     width: 400px;
-    display: none;
+    border-radius: 8px;
+    background-color: #fff;
+    position: absolute;
+    top: 0;
+    left: 0;
 }
+
+    .popup_close {
+        position: absolute;
+        top: 0;
+        right: 0;
+        width: 25px;
+        height: 25px;
+        border-radius: 50%;
+        border: none;
+        background-color: #fff;
+        cursor: pointer;
+        font-size: 0;
+    }
 
 .popup_show {
     display: block;

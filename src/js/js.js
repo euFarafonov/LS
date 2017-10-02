@@ -3,126 +3,182 @@ var map;
 var popup = document.querySelector('.popup');
 var popupTitle = popup.querySelector('.popup_title');
 var popupList = popup.querySelector('.popup_list');
-//var popupForm = popup.querySelector('.popup_form');
 var popupName = popup.querySelector('[name="name"]');
 var popupPlace = popup.querySelector('[name="place"]');
 var popupText = popup.querySelector('textarea');
 var popupBtn = popup.querySelector('.popup_form_btn');
+var popupClose = popup.querySelector('.popup_close');
 var paranja = document.querySelector('.paranja');
+var popupW = popup.clientWidth / 2;
+var popupH = popup.clientHeight / 2;
+var popupOpen = 0;
+var place = {lat: 46.96739732, lng: 31.98102951};
+
+popup.style = 'display: none';
 
 function initMap() {
-    var place = {lat: 46.96739732, lng: 31.98102951};
-    
-    // создание карты
     map = new google.maps.Map(document.getElementById('map'), {
         center: place,
         zoom: 15
     });
-    
-    var geocoder = new google.maps.Geocoder;
-    var infowindow = new google.maps.InfoWindow({
-        content: popup
-    });
-    
-    // отслеживание клика по карте
-    map.addListener('click', function(event){
-        var latlng = event.latLng;
-        
-        geocodeLatLng(geocoder, map, infowindow, latlng);
-        /*
-        var marker = new google.maps.Marker({
-            position: event.latLng,
-            map: map
+    /*
+    if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(function(position) {
+            var place = {
+                lat: position.coords.latitude,
+                lng: position.coords.longitude
+            };
         });
         
-        // открытие попапа
-        infowindow.open(map, marker);
-        */
+        map.setCenter(place);
+    }
+    */
+    var geocoder = new google.maps.Geocoder;
+    
+    if (localStorage.reviews) {
+        reviews = JSON.parse(localStorage.reviews);
+        showMarkers(reviews);
+    }
+    
+    map.addListener('click', function(event){
+        if (popupOpen) {
+            //////////////////////////////////////////// добавить анимацию ошибки
+            return false;
+        }
+        
+        popupOpen = 1;
+        clearFormInput();
+        setCoord(event);
+        
+        geocodeLatLng(geocoder, map, event);
     });
     
-    function geocodeLatLng(geocoder, map, infowindow, latlng) {
-        //var input = document.getElementById('latlng').value;
-        //var latlngStr = input.split(',', 2);
-        //var latlng = {lat: parseFloat(latlngStr[0]), lng: parseFloat(latlngStr[1])};
+    function geocodeLatLng(geocoder, map, e) {
+        var latlng = e.latLng;
         
         geocoder.geocode({'location': latlng}, function(results, status) {
             if (status === 'OK') {
                 if (results[0]) {
-                    var adressArr = results[0].formatted_address.split(', ');
-                    var number = adressArr.splice(1, 1);
-                    adressArr.unshift(number);
-                    var address = '';
-                    //console.log(results[7].formatted_address);
-                    for (let i = adressArr.length - 1; i >= 0; i--) {
-                        //console.log(adressArr[i]);
-                        address += adressArr[i];
-                        if (i > 0) {
-                            address += ', ';
-                        }
-                    }
-                    popupTitle.textContent = address;
-                    
+                    popupTitle.textContent = formatAddress(results[0].formatted_address);
                     popupBtn.addEventListener('click', saveReview);
-                    
-                    
-                    function saveReview(){
-                        //debugger;
-                        var name = popupName.value;
-                        var place = popupPlace.value;
-                        var text = popupText.value;
-                        
-                        if (name && place && text) {
-                            var review = {};
-                            review.geo = latlng;
-                            review.name = name;
-                            review.place = place;
-                            review.text = text;
-                            
-                            reviews.push(review);
-                            console.log(review);
-                            console.log(reviews);
-                            
-                        } else {
-                            paranja.classList.add('paranja_show');
-                            setTimeout(function(){
-                                paranja.classList.remove('paranja_show');
-                            }, 3000);
-                        }
-                    }
-                    
-                    
-                    
-                    var marker = new google.maps.Marker({
-                        position: latlng,
-                        map: map
+                    popupClose.addEventListener('click', function(){
+                        popupBtn.removeEventListener('click', saveReview);
+                        popupOpen = 0;
+                        popup.style = 'display: none;';
                     });
-                    
-                    
-                    
-                    //infowindow.setContent(results[0].formatted_address);
-                    infowindow.open(map, marker);
-                    popup.classList.add('popup_show');
-                    
-                    
                 } else {
-                    console.log('No results found');
+                    console.log('Результат геокодинга не получен');
                 }
             } else {
-                console.log('Geocoder failed due to: ' + status);
+                console.log('Ошибка геокодинга: ' + status);
             }
         });
+        
+        function saveReview(){
+            var name = popupName.value;
+            var place = popupPlace.value;
+            var text = popupText.value;
+            
+            if (name && place && text) {
+                var review = {};
+                //console.log(latlng);
+                review.geo = latlng;
+                review.name = name;
+                review.place = place;
+                review.text = text;
+                
+                reviews.push(review);
+                localStorage.reviews = JSON.stringify(reviews);
+                //showMarkers(reviews); // как обновить маркеры для кластеризации?
+                
+                var marker = new google.maps.Marker({
+                    position: latlng,
+                    map: map
+                });
+                
+                popupBtn.removeEventListener('click', saveReview);
+                popupOpen = 0;
+                popup.style = 'display: none;';
+            } else {
+                paranja.classList.add('paranja_show');
+                setTimeout(function(){
+                    paranja.classList.remove('paranja_show');
+                }, 3000);
+            }
+        }
     }
+}
+///////////////////////////////////////////////////////////////////////
+
+
+function clearFormInput(){
+    popupName.value = '';
+    popupPlace.value = '';
+    popupText.value = '';
+}
+        
+function setCoord(e){
+    var latlng = e.latLng;
+    var coordX = e.pixel.x;
+    var coordY = e.pixel.y;
     
-    // создание попапа
-    /*
-    infowindow = new google.maps.InfoWindow({
-        content: '<p class="content">Мой текст</p>'
-    });
+    coordX = (popupW < coordX) ? (coordX - popupW) : 0;
+    coordY = (popupH < coordY) ? (coordY - popupH) : 0;
     
-    marker.addListener('click', function(event){
-        infowindow.open(map, marker);
-    });
-    */
+    popup.style = 'top: ' + coordY + 'px; left: ' + coordX + 'px; display: block;';
 }
 
-//localStorage.left = JSON.stringify(allFriends);
+function formatAddress(result) {
+    var adressArr = result.split(', ');
+    var addressNumber = adressArr.splice(1, 1);
+    var address = '';
+    
+    adressArr.unshift(addressNumber);
+    
+    for (let i = adressArr.length - 1; i >= 0; i--) {
+        address += adressArr[i];
+        if (i > 0) {
+            address += ', ';
+        }
+    }
+    
+    return address;
+}
+
+function showMarkers(reviews){
+    var markers = reviews.map(function(review) {
+        var marker = new google.maps.Marker({
+            position: review.geo,
+            map: map
+        });
+        
+        marker.addListener('click', function(event) {
+            var latlng = event.latLng;
+            reviews.forEach(function(review){
+                console.log(review.geo);
+                console.log(latlng);
+                if (review.geo === latlng) {
+                    console.log(1);
+                }
+            });
+            
+            
+            
+            
+            
+            
+            //setCoord(event);
+            
+            
+            //console.log(1);
+        });
+
+        return marker;
+    });
+    //console.log(markers);
+    var markerCluster = new MarkerClusterer(
+        map,
+        markers,
+        {imagePath: 'https://developers.google.com/maps/documentation/javascript/examples/markerclusterer/m'}
+    );
+}
