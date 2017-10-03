@@ -27,15 +27,41 @@ body {
 
     .popup_close {
         position: absolute;
-        top: 0;
-        right: 0;
-        width: 25px;
-        height: 25px;
-        border-radius: 50%;
+        top: 15px;
+        right: 13px;
+        width: 12px;
+        height: 12px;
         border: none;
-        background-color: #fff;
         cursor: pointer;
         font-size: 0;
+        background: none;
+    }
+    
+    .popup_close::before,
+    .popup_close::after {
+        content: "";
+        width: 16px;
+        height: 4px;
+        position: absolute;
+        top: 0;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        margin: auto;
+        background-color: #fff;
+        border-radius: 2px;
+    }
+    
+    .popup_close::before {
+        transform: rotate(45deg);
+    }
+    
+    .popup_close::after {
+        transform: rotate(-45deg);
+    }
+    
+    .popup_close:focus {
+        outline: none;
     }
 
 .popup_show {
@@ -49,7 +75,7 @@ body {
         color: #fff;
         background-color: #ff8663;
         border-radius: 8px 8px 0 0;
-        padding: 15px 15px 0 15px;
+        padding: 15px 25px 0 15px;
         box-sizing: border-box;
     }
     

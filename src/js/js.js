@@ -14,7 +14,7 @@ var popupH = popup.clientHeight / 2;
 var popupOpen = 0;
 var place = {lat: 46.96739732, lng: 31.98102951};
 
-popup.style = 'display: none';
+popup.style = 'display: none;';
 
 function initMap() {
     map = new google.maps.Map(document.getElementById('map'), {
