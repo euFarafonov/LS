@@ -12,27 +12,34 @@ var paranja = document.querySelector('.paranja');
 var popupW = popup.clientWidth / 2;
 var popupH = popup.clientHeight / 2;
 var popupOpen = 0;
-var place = {lat: 46.96739732, lng: 31.98102951};
-
+var place = null;
+//var place = {lat: 46.96739732, lng: 31.98102951};
 popup.style = 'display: none;';
 
 function initMap() {
+    if (localStorage.place) {
+        place = JSON.parse(localStorage.place);
+    } else {
+        place = {lat: 46.96739732, lng: 31.98102951};
+    }
+
     map = new google.maps.Map(document.getElementById('map'), {
         center: place,
         zoom: 15
     });
-    /*
-    if (navigator.geolocation) {
+    
+    if (!localStorage.place && navigator.geolocation) {
         navigator.geolocation.getCurrentPosition(function(position) {
-            var place = {
+            place = {
                 lat: position.coords.latitude,
                 lng: position.coords.longitude
             };
+            
+            map.setCenter(place);
+            localStorage.place = JSON.stringify(place);
         });
-        
-        map.setCenter(place);
     }
-    */
+    
     var geocoder = new google.maps.Geocoder;
     
     if (localStorage.reviews) {
@@ -155,27 +162,41 @@ function showMarkers(reviews){
         marker.addListener('click', function(event) {
             var latlng = event.latLng;
             reviews.forEach(function(review){
-                console.log(review.geo);
-                console.log(latlng);
-                if (review.geo === latlng) {
-                    console.log(1);
+                //console.log(review.geo.lat);
+                //console.log(latlng.lat());
+                //console.log(latlng.lng());
+                if (review.geo.lat === latlng.lat() && review.geo.lng === latlng.lng()) {
+                    var li = document.createElement('li');
+                    var b = document.createElement('b');
+                    var span = document.createElement('span');
+                    var p = document.createElement('p');
+                    b.textContent = ': ' + review.name;
+                    span.textContent = '- ' + review.place;
+                    p.textContent = review.text;
+                    li.appendChild(b);
+                    li.appendChild(span);
+                    li.appendChild(p);
+                    popupList.appendChild(li);
+                    
+                    popupTitle.textContent = 'address';///////////////////////////////////////////
+                    popupBtn.addEventListener('click', saveReview);
+                    popupClose.addEventListener('click', function(){
+                        popupBtn.removeEventListener('click', saveReview);
+                        popupOpen = 0;
+                        popup.style = 'display: none;';
+                    });
+                    popupOpen = 1;
+                    clearFormInput();
+                    popup.style = 'top: 0; left:0; display: block;';
                 }
             });
             
-            
-            
-            
-            
-            
             //setCoord(event);
-            
-            
-            //console.log(1);
         });
 
         return marker;
     });
-    //console.log(markers);
+    
     var markerCluster = new MarkerClusterer(
         map,
         markers,
