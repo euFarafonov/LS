@@ -1,4 +1,6 @@
-var reviews = [];
+var reviews = []; // массив всех отзывов
+//var markers = [];
+var markerCluster;
 var map;
 var popup = document.querySelector('.popup');
 var popupTitle = popup.querySelector('.popup_title');
@@ -11,23 +13,19 @@ var popupClose = popup.querySelector('.popup_close');
 var paranja = document.querySelector('.paranja');
 var popupW = popup.clientWidth / 2;
 var popupH = popup.clientHeight / 2;
-var popupOpen = 0;
-var place = null;
-//var place = {lat: 46.96739732, lng: 31.98102951};
+var popupOpen = 0; // 0 - нет открытых попапов, 1 - попап открыт
+var place = null; // точка центровки карты
+
 popup.style = 'display: none;';
 
 function initMap() {
-    if (localStorage.place) {
-        place = JSON.parse(localStorage.place);
-    } else {
-        place = {lat: 46.96739732, lng: 31.98102951};
-    }
-
+    place = (localStorage.place) ? JSON.parse(localStorage.place) : {lat: 46.96739732, lng: 31.98102951};
+    // создание карты
     map = new google.maps.Map(document.getElementById('map'), {
         center: place,
         zoom: 15
     });
-    
+    // центровка карты, если пользователь разрешил узнать его геолокацию
     if (!localStorage.place && navigator.geolocation) {
         navigator.geolocation.getCurrentPosition(function(position) {
             place = {
@@ -42,89 +40,105 @@ function initMap() {
     
     var geocoder = new google.maps.Geocoder;
     
+    // если ранее были добавлены отзывы - показать их на карте
     if (localStorage.reviews) {
         reviews = JSON.parse(localStorage.reviews);
+        // функция отображения маркеров на карте
         showMarkers(reviews);
     }
     
+    // если будет клик по карте
     map.addListener('click', function(event){
         if (popupOpen) {
-            //////////////////////////////////////////// добавить анимацию ошибки
+            popup.classList.add('errorAnim');
+            setTimeout(function(){
+                popup.classList.remove('errorAnim');
+            }, 500);
+            
             return false;
         }
         
         popupOpen = 1;
         clearFormInput();
-        setCoord(event);
         
-        geocodeLatLng(geocoder, map, event);
-    });
-    
-    function geocodeLatLng(geocoder, map, e) {
-        var latlng = e.latLng;
+        var latlng = event.latLng;
         
-        geocoder.geocode({'location': latlng}, function(results, status) {
-            if (status === 'OK') {
-                if (results[0]) {
-                    popupTitle.textContent = formatAddress(results[0].formatted_address);
-                    popupBtn.addEventListener('click', saveReview);
-                    popupClose.addEventListener('click', function(){
-                        popupBtn.removeEventListener('click', saveReview);
-                        popupOpen = 0;
-                        popup.style = 'display: none;';
-                    });
+        var promise = new Promise(function(resolve, reject) {
+            // получение геокода адреса
+            geocoder.geocode({'location': latlng}, function(results, status) {
+                if (status === 'OK') {
+                    if (results[0]) {
+                        resolve(results[0].formatted_address);
+                    } else {
+                        reject('Результат геокодинга не получен');
+                    }
                 } else {
-                    console.log('Результат геокодинга не получен');
+                    reject('Ошибка геокодинга: ' + status);
                 }
-            } else {
-                console.log('Ошибка геокодинга: ' + status);
-            }
+            });
         });
         
-        function saveReview(){
-            var name = popupName.value;
-            var place = popupPlace.value;
-            var text = popupText.value;
-            
-            if (name && place && text) {
-                var review = {};
-                //console.log(latlng);
-                review.geo = latlng;
-                review.name = name;
-                review.place = place;
-                review.text = text;
+        promise
+            .then(function(result){
+                var address = formatAddress(result);
+                popupTitle.textContent = address;
+                showPopup(event);
                 
-                reviews.push(review);
-                localStorage.reviews = JSON.stringify(reviews);
-                //showMarkers(reviews); // как обновить маркеры для кластеризации?
-                
-                var marker = new google.maps.Marker({
-                    position: latlng,
-                    map: map
-                });
-                
-                popupBtn.removeEventListener('click', saveReview);
-                popupOpen = 0;
-                popup.style = 'display: none;';
-            } else {
-                paranja.classList.add('paranja_show');
-                setTimeout(function(){
-                    paranja.classList.remove('paranja_show');
-                }, 3000);
-            }
-        }
-    }
+                popupBtn.addEventListener('click', saveReview.bind(null, latlng, address));
+                popupClose.addEventListener('click', hidePopup);
+            })
+            .catch(function(error){
+                alert(error);
+            });
+    });
 }
 ///////////////////////////////////////////////////////////////////////
+// сохранение отзыва
+function saveReview(latlng, address){
+    var name = popupName.value;
+    var place = popupPlace.value;
+    var text = popupText.value;
+    
+    if (name && place && text) {
+        var review = {};
+        
+        review.geo = latlng;
+        review.name = name;
+        review.place = place;
+        review.text = text;
+        review.address = address;
+        
+        reviews.push(review);
+        localStorage.reviews = JSON.stringify(reviews);
+        
+        var marker = new google.maps.Marker({
+            position: latlng,
+            map: map
+        });
+        
+        markerCluster.addMarker(marker, false);// а если нет объекта markerCluster????????????
+        
+        // нужно навесить события клика на новый маркер
+        
+        // нужно навесить событие клика на кластеры
+        
+        hidePopup();
+    } else {
+        paranja.classList.add('paranja_show');
+        setTimeout(function(){
+            paranja.classList.remove('paranja_show');
+        }, 3000);
+    }
+}
 
-
+// очистка полей формы
 function clearFormInput(){
     popupName.value = '';
     popupPlace.value = '';
     popupText.value = '';
 }
-        
-function setCoord(e){
+// показ попапа
+function showPopup(e){
     var latlng = e.latLng;
     var coordX = e.pixel.x;
     var coordY = e.pixel.y;
@@ -135,6 +149,14 @@ function setCoord(e){
     popup.style = 'top: ' + coordY + 'px; left: ' + coordX + 'px; display: block;';
 }
 
+// скрытие попапа
+function hidePopup(){
+    popupBtn.removeEventListener('click', saveReview);
+    popupOpen = 0;
+    popup.style = 'display: none;';
+}
+
+// форматирование адреса
 function formatAddress(result) {
     var adressArr = result.split(', ');
     var addressNumber = adressArr.splice(1, 1);
@@ -153,51 +175,52 @@ function formatAddress(result) {
 }
 
 function showMarkers(reviews){
+    // массив маркеров
     var markers = reviews.map(function(review) {
         var marker = new google.maps.Marker({
             position: review.geo,
             map: map
         });
         
+        // если будет клик по маркеру
         marker.addListener('click', function(event) {
             var latlng = event.latLng;
+            
             reviews.forEach(function(review){
-                //console.log(review.geo.lat);
-                //console.log(latlng.lat());
-                //console.log(latlng.lng());
                 if (review.geo.lat === latlng.lat() && review.geo.lng === latlng.lng()) {
                     var li = document.createElement('li');
                     var b = document.createElement('b');
                     var span = document.createElement('span');
                     var p = document.createElement('p');
-                    b.textContent = ': ' + review.name;
-                    span.textContent = '- ' + review.place;
+                    b.textContent = review.name + ': ';
+                    span.textContent = review.place;
                     p.textContent = review.text;
                     li.appendChild(b);
                     li.appendChild(span);
                     li.appendChild(p);
                     popupList.appendChild(li);
                     
-                    popupTitle.textContent = 'address';///////////////////////////////////////////
-                    popupBtn.addEventListener('click', saveReview);
-                    popupClose.addEventListener('click', function(){
-                        popupBtn.removeEventListener('click', saveReview);
-                        popupOpen = 0;
-                        popup.style = 'display: none;';
-                    });
+                    popupTitle.textContent = review.address;
+                    
+                    console.log(review);
+                    console.log(event);
+                    
+                    popupBtn.addEventListener('click', saveReview.bind(null, latlng, review.address));
+                    popupClose.addEventListener('click', hidePopup);
+                    
                     popupOpen = 1;
                     clearFormInput();
-                    popup.style = 'top: 0; left:0; display: block;';
+                    //showPopup(event);
+                    popup.style = 'top: 0; left: 0; display: block;';// как получить координаты маркера при клике?
                 }
             });
             
-            //setCoord(event);
         });
 
         return marker;
     });
     
-    var markerCluster = new MarkerClusterer(
+    markerCluster = new MarkerClusterer(
         map,
         markers,
         {imagePath: 'https://developers.google.com/maps/documentation/javascript/examples/markerclusterer/m'}
