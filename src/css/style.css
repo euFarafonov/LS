@@ -9,6 +9,7 @@ html,
 body {
     height: 100%;
     overflow: hidden;
+    background-color: #fff;
 }
 
 #map {
@@ -23,6 +24,7 @@ body {
     position: absolute;
     top: 0;
     left: 0;
+    z-index: -1;
 }
 
     .popup_close {
