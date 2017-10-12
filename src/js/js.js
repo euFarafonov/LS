@@ -51,9 +51,10 @@ function initMap() {
     // создание кластера маркеров
     createCluster();
     
-    google.maps.event.addListener(markerCluster, "clusterclick", function (cluster) {
-        
+    google.maps.event.addListener(markerCluster, "clusterclick", function (cluster, event) {
+        event.stopPropagation();
         console.log(cluster);
+        console.log(event);
     }); 
     
     // если будет клик по карте
