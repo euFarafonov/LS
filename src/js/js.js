@@ -51,6 +51,11 @@ function initMap() {
     // создание кластера маркеров
     createCluster();
     
+    google.maps.event.addListener(markerCluster, "clusterclick", function (cluster) {
+        
+        console.log(cluster);
+    }); 
+    
     // если будет клик по карте
     map.addListener('click', function(event){
         if (popupOpen) {
@@ -109,7 +114,6 @@ function saveReview(){
         
         reviews.push(review);
         localStorage.reviews = JSON.stringify(reviews);
-        console.log(reviews);
         
         var marker = new google.maps.Marker({
             position: currentLatLng,
@@ -118,7 +122,32 @@ function saveReview(){
         
         hidePopup();
         markerCluster.addMarker(marker, false);
-        // нужно навесить событие клика на новый маркер
+        
+        marker.addListener('click', function() {
+            var latlng = this.position;
+            currentLatLng = latlng;
+            
+            reviews.forEach(function(review){
+                if (review.geo.lat === latlng.lat && review.geo.lng === latlng.lng) {
+                    popupList.innerHTML = '';
+                    var li = document.createElement('li');
+                    var b = document.createElement('b');
+                    var span = document.createElement('span');
+                    var p = document.createElement('p');
+                    b.textContent = review.name + ': ';
+                    span.textContent = review.place;
+                    p.textContent = review.text;
+                    li.appendChild(b);
+                    li.appendChild(span);
+                    li.appendChild(p);
+                    popupList.appendChild(li);
+                    
+                    popupTitle.textContent = review.address;
+                    currentAddress = review.address;
+                    showPopup(window.event);
+                }
+            });
+        });
         
         // нужно навесить событие клика на кластеры
         
@@ -201,7 +230,6 @@ function createMarkers(reviews){
         });
         
         marker.addListener('click', function(event) {
-            console.log(this);
             var latlng = event.latLng;
             currentLatLng = latlng;
             
