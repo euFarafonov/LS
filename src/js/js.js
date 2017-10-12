@@ -263,6 +263,9 @@ function createCluster(){
     markerCluster = new MarkerClusterer(
         map,
         markers,
-        {imagePath: 'https://developers.google.com/maps/documentation/javascript/examples/markerclusterer/m'}
+        {
+            zoomOnClick: false,
+            imagePath: 'https://developers.google.com/maps/documentation/javascript/examples/markerclusterer/m'
+        }
     );
 }
