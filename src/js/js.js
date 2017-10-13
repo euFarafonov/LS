@@ -17,6 +17,8 @@ var place = null; // точка центровки карты
 var currentLatLng;
 var currentAddress;
 
+var slides = [];
+
 function initMap() {
     place = (localStorage.place) ? JSON.parse(localStorage.place) : {lat: 46.96739732, lng: 31.98102951};
     
@@ -53,8 +55,63 @@ function initMap() {
     
     google.maps.event.addListener(markerCluster, "clusterclick", function (cluster, event) {
         event.stopPropagation();
-        console.log(cluster);
-        console.log(event);
+        
+        if (popupOpen) {
+            slider.classList.add('errorAnim');
+            setTimeout(function(){
+                slider.classList.remove('errorAnim');
+            }, 500);
+            
+            return false;
+        }
+        
+        map.setCenter(cluster.center_);
+        slider.style = 'z-index: 1;';
+        popupOpen = 1;
+        
+        var markersArr = cluster.markers_;
+        var currentSlider = 1;
+        
+        for (let i = 0; i < markersArr.length; i++) {
+            reviews.forEach(function(review){
+                if (review.geo.lat === markersArr[i].position.lat() && review.geo.lng === markersArr[i].position.lng()) {
+                    var divSlide = document.createElement('div');
+                    var divTitle = document.createElement('div');
+                    var divAddress = document.createElement('div');
+                    var divReview = document.createElement('div');
+                    var divData = document.createElement('div');
+                    var divPagNumb = document.createElement('div');
+                    
+                    divSlide.classList.add('slide');
+                    if (currentSlider === 1) divSlide.classList.add('slide_active');
+                    divSlide.setAttribute('data-numb', currentSlider);
+                    
+                    divTitle.classList.add('slide_title');
+                    divAddress.classList.add('slide_address');
+                    divReview.classList.add('slide_review');
+                    divData.classList.add('slide_data');
+                    
+                    divTitle.textContent = review.place;
+                    divAddress.textContent = review.address;
+                    divReview.textContent = review.text;
+                    divData.textContent = review.date;
+                    
+                    divSlide.appendChild(divTitle);
+                    divSlide.appendChild(divAddress);
+                    divSlide.appendChild(divReview);
+                    divSlide.appendChild(divData);
+                    slidesWrap.appendChild(divSlide);
+                    
+                    divPagNumb.classList.add('pag_numb');
+                    if (currentSlider === 1) divPagNumb.classList.add('pag_numb_active');
+                    divPagNumb.textContent = currentSlider;
+                    divPagNumb.setAttribute('data-numb', currentSlider);
+                    pag.appendChild(divPagNumb);
+                    
+                    currentSlider++;
+                }
+            });
+        }
     }); 
     
     // если будет клик по карте
@@ -106,12 +163,14 @@ function saveReview(){
     
     if (name && place && text) {
         var review = {};
+        var curDate = formatDate(new Date());
         
         review.geo = currentLatLng;
         review.name = name;
         review.place = place;
         review.text = text;
         review.address = currentAddress;
+        review.date = curDate;
         
         reviews.push(review);
         localStorage.reviews = JSON.stringify(reviews);
@@ -185,6 +244,32 @@ function showPopup(e){
     popup.style = 'top: ' + coordY + 'px; left: ' + coordX + 'px; z-index: 1;';
     popupOpen = 1;
 }
+
+// показ слайдера
+/*function showSlider(){
+    var coordX,
+        coordY,
+        popupW = popup.clientWidth / 2,
+        popupH = popup.clientHeight / 2;
+    
+    if (e.pixel) {
+        coordX = e.pixel.x;
+        coordY = e.pixel.y;
+    } else {
+        coordX = e.pageX;
+        coordY = e.pageY;
+    }
+    
+    popupName.value = '';
+    popupPlace.value = '';
+    popupText.value = '';
+    
+    coordX = (popupW < coordX) ? (coordX - popupW) : 0;
+    coordY = (popupH < coordY) ? (coordY - popupH) : 0;
+    
+    popup.style = 'top: ' + coordY + 'px; left: ' + coordX + 'px; z-index: 1;';
+    popupOpen = 1;
+}*/
 
 // Клик по кнопке "Добавить отзыв"
 popupBtn.addEventListener('click', function(){
@@ -269,4 +354,72 @@ function createCluster(){
             imagePath: 'https://developers.google.com/maps/documentation/javascript/examples/markerclusterer/m'
         }
     );
+}
+
+/* SLIDER */
+var slider = document.getElementById('slider');
+var sliderLeft = slider.querySelector('.left');
+var sliderRight = slider.querySelector('.right');
+var sliderClose = slider.querySelector('.slider_close');
+var slidesWrap = slider.querySelector('.slider_wrap');
+var pag = slider.querySelector('.pag');
+
+sliderClose.addEventListener('click', function(){
+    slider.style = 'z-index: -1;';
+    slidesWrap.innerHTML = '';
+    pag.innerHTML = '';
+    popupOpen = 0;
+});
+
+slider.addEventListener('click', function(event){
+    var target = event.target;
+    
+    var curSlide = slider.querySelector('.slide_active');
+    var curBtn = slider.querySelector('.pag_numb_active');
+    
+    if (target.classList.contains('change_slide')) {
+        var side = target.dataset.side;
+        var curNumb = +curSlide.dataset.numb;
+        var newNumb = (side === 'left') ? curNumb - 1 : curNumb + 1;
+        var allSlides = slider.querySelectorAll('.slide');
+        
+        if (newNumb > 0 && newNumb <= allSlides.length) {
+            changeSlide(curSlide, curBtn, newNumb);
+        }
+    }
+    
+    if (target.classList.contains('pag_numb') && !target.classList.contains('pag_numb_active')) {
+        var newNumb = +target.dataset.numb;
+        
+        changeSlide(curSlide, curBtn, newNumb);
+    }
+});
+
+function changeSlide(curSlide, curBtn, newNumb) {
+    curSlide.classList.remove('slide_active');
+    curBtn.classList.remove('pag_numb_active');
+    
+    var newSlide = slidesWrap.querySelector('[data-numb="' + newNumb + '"]');
+    var newBtn = pag.querySelector('[data-numb="' + newNumb + '"]');
+    
+    newSlide.classList.add('slide_active');
+    newBtn.classList.add('pag_numb_active');
+}
+
+function formatDate(date) {
+    var dd = date.getDate();
+    if (dd < 10) dd = '0' + dd;
+    
+    var mm = date.getMonth() + 1;
+    if (mm < 10) mm = '0' + mm;
+    
+    var yy = date.getFullYear();
+    
+    var hh = date.getHours();
+    
+    var mi = date.getMinutes();
+    
+    var ss = date.getSeconds();
+    
+    return dd + '.' + mm + '.' + yy + ' ' + hh + ':' + mi + ':' + ss;
 }
