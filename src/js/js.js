@@ -126,7 +126,8 @@ function initMap() {
         }
         
         var latlng = event.latLng;
-        currentLatLng = latlng;
+        
+        writeCurrentLatLng(event);
         
         var promise = new Promise(function(resolve, reject) {
             // получение геокода адреса
@@ -165,7 +166,10 @@ function saveReview(){
         var review = {};
         var curDate = formatDate(new Date());
         
-        review.geo = currentLatLng;
+        review.geo = {
+            lat: currentLatLng.lat,
+            lng: currentLatLng.lng
+        };
         review.name = name;
         review.place = place;
         review.text = text;
@@ -245,32 +249,6 @@ function showPopup(e){
     popupOpen = 1;
 }
 
-// показ слайдера
-/*function showSlider(){
-    var coordX,
-        coordY,
-        popupW = popup.clientWidth / 2,
-        popupH = popup.clientHeight / 2;
-    
-    if (e.pixel) {
-        coordX = e.pixel.x;
-        coordY = e.pixel.y;
-    } else {
-        coordX = e.pageX;
-        coordY = e.pageY;
-    }
-    
-    popupName.value = '';
-    popupPlace.value = '';
-    popupText.value = '';
-    
-    coordX = (popupW < coordX) ? (coordX - popupW) : 0;
-    coordY = (popupH < coordY) ? (coordY - popupH) : 0;
-    
-    popup.style = 'top: ' + coordY + 'px; left: ' + coordX + 'px; z-index: 1;';
-    popupOpen = 1;
-}*/
-
 // Клик по кнопке "Добавить отзыв"
 popupBtn.addEventListener('click', function(){
     saveReview();
@@ -317,7 +295,8 @@ function createMarkers(reviews){
         
         marker.addListener('click', function(event) {
             var latlng = event.latLng;
-            currentLatLng = latlng;
+            
+            writeCurrentLatLng(event);
             
             reviews.forEach(function(review){
                 if (review.geo.lat === latlng.lat() && review.geo.lng === latlng.lng()) {
@@ -343,6 +322,13 @@ function createMarkers(reviews){
 
         return marker;
     });
+}
+
+function writeCurrentLatLng(event){
+    currentLatLng = {
+        lat: event.latLng.lat(),
+        lng: event.latLng.lng()
+    };
 }
 
 function createCluster(){
