@@ -69,12 +69,28 @@ function initMap() {
         slider.style = 'z-index: 1;';
         popupOpen = 1;
         
-        var markersArr = cluster.markers_;
+        var markersClone = [];
+        var reviewsClone = [];
+        
+        for (let i = 0; i < cluster.markers_.length; i++) {
+            markersClone[i] = cluster.markers_[i];
+        }
+        
+        for (let i = 0; i < reviews.length; i++) {
+            reviewsClone[i] = reviews[i];
+        }
+        
+        //console.log(markersClone);
+        //console.log(reviewsClone);
+        
         var currentSlider = 1;
         
-        for (let i = 0; i < markersArr.length; i++) {
-            reviews.forEach(function(review){
-                if (review.geo.lat === markersArr[i].position.lat() && review.geo.lng === markersArr[i].position.lng()) {
+        for (let j = reviewsClone.length - 1; j >= 0; j--) {
+            for (let i = markersClone.length - 1; i >= 0; i--, markersClone.pop()) {
+                //console.log(markersClone[i]);
+                if (reviewsClone[j].geo.lat === markersClone[i].position.lat() && reviewsClone[j].geo.lng === markersClone[i].position.lng()) {
+                    var review = reviewsClone[j];
+                    console.log(review);
                     var divSlide = document.createElement('div');
                     var divTitle = document.createElement('div');
                     var divAddress = document.createElement('div');
@@ -113,7 +129,6 @@ function initMap() {
                     divAddress.addEventListener('click', function(){
                         closeSlider();
                         
-                        ////////
                         currentLatLng = {
                             lat: review.geo.lat,
                             lng: review.geo.lng
@@ -136,11 +151,14 @@ function initMap() {
                         popupTitle.textContent = review.address;
                         currentAddress = review.address;
                         showPopup(window.event);
-                        ////////
                     });
-                }
-            });
-        }
+                    
+                    //markersClone.pop();
+                    break;
+                }/* End If */
+                //console.log(markersArr);
+            }/* End For */
+        }/* End For */
     }); 
     
     // если будет клик по карте
@@ -207,7 +225,7 @@ function saveReview(){
             lat: currentLatLng.lat,
             lng: currentLatLng.lng
         };
-        //console.log(review.geo);
+        
         review.name = name;
         review.place = place;
         review.text = text;
