@@ -109,6 +109,35 @@ function initMap() {
                     pag.appendChild(divPagNumb);
                     
                     currentSlider++;
+                    
+                    divAddress.addEventListener('click', function(){
+                        closeSlider();
+                        
+                        ////////
+                        currentLatLng = {
+                            lat: review.geo.lat,
+                            lng: review.geo.lng
+                        };
+                        
+                        popupList.innerHTML = '';
+                        var li = document.createElement('li');
+                        var b = document.createElement('b');
+                        var span = document.createElement('span');
+                        var p = document.createElement('p');
+                        
+                        b.textContent = review.name + ': ';
+                        span.textContent = review.place;
+                        p.textContent = review.text;
+                        li.appendChild(b);
+                        li.appendChild(span);
+                        li.appendChild(p);
+                        popupList.appendChild(li);
+                        
+                        popupTitle.textContent = review.address;
+                        currentAddress = review.address;
+                        showPopup(window.event);
+                        ////////
+                    });
                 }
             });
         }
@@ -148,6 +177,14 @@ function initMap() {
             .then(function(result){
                 currentAddress = formatAddress(result);
                 popupTitle.textContent = currentAddress;
+                
+                popupList.innerHTML = '';
+                var li = document.createElement('li');
+                var b = document.createElement('b');
+                b.textContent = 'Отзывов пока нет ...';
+                li.appendChild(b);
+                popupList.appendChild(li);
+                
                 showPopup(event);
             })
             .catch(function(error){
@@ -170,6 +207,7 @@ function saveReview(){
             lat: currentLatLng.lat,
             lng: currentLatLng.lng
         };
+        //console.log(review.geo);
         review.name = name;
         review.place = place;
         review.text = text;
@@ -180,7 +218,7 @@ function saveReview(){
         localStorage.reviews = JSON.stringify(reviews);
         
         var marker = new google.maps.Marker({
-            position: currentLatLng,
+            position: review.geo,
             map: map
         });
         
@@ -188,32 +226,27 @@ function saveReview(){
         markerCluster.addMarker(marker, false);
         
         marker.addListener('click', function() {
-            var latlng = this.position;
-            currentLatLng = latlng;
+            currentLatLng = {
+                lat: this.position.lat(),
+                lng: this.position.lng()
+            };
+            popupList.innerHTML = '';
+            var li = document.createElement('li');
+            var b = document.createElement('b');
+            var span = document.createElement('span');
+            var p = document.createElement('p');
+            b.textContent = review.name + ': ';
+            span.textContent = review.place;
+            p.textContent = review.text;
+            li.appendChild(b);
+            li.appendChild(span);
+            li.appendChild(p);
+            popupList.appendChild(li);
             
-            reviews.forEach(function(review){
-                if (review.geo.lat === latlng.lat && review.geo.lng === latlng.lng) {
-                    popupList.innerHTML = '';
-                    var li = document.createElement('li');
-                    var b = document.createElement('b');
-                    var span = document.createElement('span');
-                    var p = document.createElement('p');
-                    b.textContent = review.name + ': ';
-                    span.textContent = review.place;
-                    p.textContent = review.text;
-                    li.appendChild(b);
-                    li.appendChild(span);
-                    li.appendChild(p);
-                    popupList.appendChild(li);
-                    
-                    popupTitle.textContent = review.address;
-                    currentAddress = review.address;
-                    showPopup(window.event);
-                }
-            });
+            popupTitle.textContent = review.address;
+            currentAddress = review.address;
+            showPopup(window.event);
         });
-        
-        // нужно навесить событие клика на кластеры
         
     } else {
         paranja.classList.add('paranja_show');
@@ -294,12 +327,13 @@ function createMarkers(reviews){
         });
         
         marker.addListener('click', function(event) {
-            var latlng = event.latLng;
+            var lat = event.latLng.lat();
+            var lng = event.latLng.lng();
             
             writeCurrentLatLng(event);
             
             reviews.forEach(function(review){
-                if (review.geo.lat === latlng.lat() && review.geo.lng === latlng.lng()) {
+                if (review.geo.lat === lat && review.geo.lng === lng) {
                     popupList.innerHTML = '';
                     var li = document.createElement('li');
                     var b = document.createElement('b');
@@ -351,11 +385,15 @@ var slidesWrap = slider.querySelector('.slider_wrap');
 var pag = slider.querySelector('.pag');
 
 sliderClose.addEventListener('click', function(){
+    sliderClose();
+});
+
+function closeSlider(){
     slider.style = 'z-index: -1;';
     slidesWrap.innerHTML = '';
     pag.innerHTML = '';
     popupOpen = 0;
-});
+}
 
 slider.addEventListener('click', function(event){
     var target = event.target;
@@ -395,16 +433,11 @@ function changeSlide(curSlide, curBtn, newNumb) {
 function formatDate(date) {
     var dd = date.getDate();
     if (dd < 10) dd = '0' + dd;
-    
     var mm = date.getMonth() + 1;
     if (mm < 10) mm = '0' + mm;
-    
     var yy = date.getFullYear();
-    
     var hh = date.getHours();
-    
     var mi = date.getMinutes();
-    
     var ss = date.getSeconds();
     
     return dd + '.' + mm + '.' + yy + ' ' + hh + ':' + mi + ':' + ss;
