@@ -385,7 +385,7 @@ var slidesWrap = slider.querySelector('.slider_wrap');
 var pag = slider.querySelector('.pag');
 
 sliderClose.addEventListener('click', function(){
-    sliderClose();
+    closeSlider();
 });
 
 function closeSlider(){
