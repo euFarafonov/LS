@@ -69,28 +69,23 @@ function initMap() {
         slider.style = 'z-index: 1;';
         popupOpen = 1;
         
-        var markersClone = [];
         var reviewsClone = [];
-        
-        for (let i = 0; i < cluster.markers_.length; i++) {
-            markersClone[i] = cluster.markers_[i];
-        }
         
         for (let i = 0; i < reviews.length; i++) {
             reviewsClone[i] = reviews[i];
+            reviewsClone[i].used = 0;
         }
-        
-        //console.log(markersClone);
-        //console.log(reviewsClone);
         
         var currentSlider = 1;
         
-        for (let j = reviewsClone.length - 1; j >= 0; j--) {
-            for (let i = markersClone.length - 1; i >= 0; i--, markersClone.pop()) {
-                //console.log(markersClone[i]);
-                if (reviewsClone[j].geo.lat === markersClone[i].position.lat() && reviewsClone[j].geo.lng === markersClone[i].position.lng()) {
-                    var review = reviewsClone[j];
-                    console.log(review);
+        for (let i = 0; i < cluster.markers_.length; i++) {
+            var marker = cluster.markers_[i];
+            for (let j = 0; j < reviewsClone.length; j++) {
+                let review = reviewsClone[j];
+                
+                if (review.geo.lat === marker.position.lat() && review.geo.lng === marker.position.lng() && !review.used) {
+                    review.used = 1;
+                    
                     var divSlide = document.createElement('div');
                     var divTitle = document.createElement('div');
                     var divAddress = document.createElement('div');
@@ -152,13 +147,9 @@ function initMap() {
                         currentAddress = review.address;
                         showPopup(window.event);
                     });
-                    
-                    //markersClone.pop();
-                    break;
-                }/* End If */
-                //console.log(markersArr);
-            }/* End For */
-        }/* End For */
+                }
+            }
+        }
     }); 
     
     // если будет клик по карте
@@ -425,9 +416,10 @@ slider.addEventListener('click', function(event){
         var newNumb = (side === 'left') ? curNumb - 1 : curNumb + 1;
         var allSlides = slider.querySelectorAll('.slide');
         
-        if (newNumb > 0 && newNumb <= allSlides.length) {
-            changeSlide(curSlide, curBtn, newNumb);
-        }
+        if (newNumb < 1) newNumb = allSlides.length;
+        if (newNumb > allSlides.length) newNumb = 1;
+        
+        changeSlide(curSlide, curBtn, newNumb);
     }
     
     if (target.classList.contains('pag_numb') && !target.classList.contains('pag_numb_active')) {
